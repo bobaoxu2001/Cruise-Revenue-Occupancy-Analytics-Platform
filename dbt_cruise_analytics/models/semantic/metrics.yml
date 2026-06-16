@@ -51,7 +51,7 @@ semantic_models:
     model: ref('fct_occupancy_daily')
     entities:
       - name: sailing
-        type: foreign
+        type: primary
         expr: sailing_id
     dimensions:
       - name: occupancy_date
@@ -109,12 +109,19 @@ semantic_models:
 
   - name: marketing_semantic_model
     description: Campaign semantic model for attributed revenue, spend, ROAS, and cancellation exposure.
+    defaults:
+      agg_time_dimension: reporting_date
     model: ref('mart_marketing_performance')
     entities:
       - name: campaign
         type: primary
         expr: campaign_id
     dimensions:
+      - name: reporting_date
+        type: time
+        expr: cast('2026-01-01' as date)
+        type_params:
+          time_granularity: day
       - name: campaign_name
         type: categorical
       - name: campaign_channel
