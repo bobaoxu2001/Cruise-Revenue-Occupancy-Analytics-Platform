@@ -77,7 +77,7 @@ semantic_models:
       agg_time_dimension: recognition_month
     model: ref('mart_finance_revenue')
     entities:
-      - name: sailing
+      - name: finance_sailing
         type: primary
         expr: sailing_id
     dimensions:
