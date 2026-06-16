@@ -19,7 +19,7 @@ models:
     marts:
       +materialized: table
     semantic:
-      +enabled: false
+      +materialized: view
 
 seeds:
   cruise_analytics:
