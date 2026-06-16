@@ -28,3 +28,13 @@ Calculated fields:
 
 Row-level security assumption:
 - Production Tableau would pass user region entitlements from the identity provider or a Snowflake row access policy.
+
+Generated proof asset:
+- `docs/screenshots/tableau_executive_scorecard.png` is generated from the governed extracts by `scripts/generate_dashboard_screenshots.py`.
+
+Tableau Public publish path:
+1. Sign in to Tableau Public.
+2. Create a new workbook from the CSV extracts in `dashboards/tableau/exported_extracts`.
+3. Rebuild the views listed above.
+4. Publish the workbook publicly.
+5. Replace the placeholder Tableau exposure URL in `dbt_cruise_analytics/models/exposures.yml` with the real Tableau Public URL.

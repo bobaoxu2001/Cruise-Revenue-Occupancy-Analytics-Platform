@@ -46,5 +46,8 @@ jobs:
       - name: Export BI extracts
         run: python scripts/export_bi_extracts.py
 
+      - name: Generate dashboard screenshots
+        run: python scripts/generate_dashboard_screenshots.py
+
       - name: Streamlit import check
         run: python -m py_compile streamlit_app/app.py

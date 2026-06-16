@@ -5,6 +5,7 @@ exposures:
     label: Tableau Executive Scorecard
     type: dashboard
     maturity: medium
+    # Replace with the real Tableau Public workbook URL after authenticated publish.
     url: https://public.tableau.com/
     description: Executive performance dashboard powered by mart_executive_scorecard and revenue management marts.
     depends_on:

@@ -1,5 +1,7 @@
 # Luxury Cruise Analytics Engineering Platform
 
+[![cruise-analytics-ci](https://github.com/bobaoxu2001/Cruise-Revenue-Occupancy-Analytics-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/bobaoxu2001/Cruise-Revenue-Occupancy-Analytics-Platform/actions/workflows/ci.yml)
+
 This project simulates the analytics engineering layer of a luxury cruise company. It is locally runnable with DuckDB and dbt-duckdb, and it transforms raw reservations, payments, itineraries, cabins, marketing campaigns, and AOP targets into governed dbt marts and semantic KPI definitions powering Tableau and Power BI executive scorecards.
 
 The platform includes a deterministic synthetic data generator, a real dbt incremental booking fact, revenue recognition and deferred revenue marts, a monthly finance revenue waterfall, dbt tests and documentation, GitHub Actions CI, exported BI-ready CSVs, Snowflake-ready SQL patterns, and a Streamlit governed analyst prototype. Snowflake deployment patterns are included, but no real Snowflake deployment is claimed without credentials.
@@ -26,7 +28,7 @@ Luxury cruise operators need trusted answers about recognized revenue, deferred 
 | dbt | Staging, intermediate, mart, semantic, snapshot, exposure, docs, and tests run in CI. | dbt-snowflake profile can be added for real deployment. |
 | Incremental logic | `fct_booking_daily` is a real dbt incremental model using a stable booking grain. | Snowflake MERGE example shows warehouse-native implementation. |
 | Finance | Sailing-level finance mart and monthly deferred revenue waterfall are implemented. | Finance logic can be extended to match a company's chart of accounts. |
-| BI | Tableau and Power BI extracts and rebuild blueprints are committed. | Real workbook/screenshots are manual next steps. |
+| BI | Tableau and Power BI extracts, rebuild blueprints, and generated dashboard screenshots are committed. | Tableau Public workbook publishing still requires an authenticated Tableau Public account. |
 | AI analyst | Streamlit governed question menu reads exported marts. | No unrestricted AI SQL generation or Snowflake Cortex claim. |
 
 ## Architecture
@@ -82,6 +84,20 @@ The `snowflake/sql_examples` folder includes:
 
 The dashboard folders include blueprint documents, data source mappings, and exported extracts after running `scripts/export_bi_extracts.py`. These are BI-ready assets, not fabricated dashboard screenshots.
 
+### Tableau Executive Scorecard
+
+The executive scorecard screenshot is generated from governed dbt marts and includes revenue vs AOP, occupancy by region and ship class, booking pace, underperforming sailings, cancellation rate, and revenue per passenger night.
+
+![Tableau Executive Scorecard](docs/screenshots/tableau_executive_scorecard.png)
+
+Tableau Public link: pending authenticated Tableau Public publish. The repository does not claim a public workbook URL until it is published from a real Tableau Public account.
+
+### Power BI Finance Waterfall
+
+The finance proof screenshot is generated from the monthly deferred revenue waterfall and sailing-level finance mart.
+
+![Power BI Finance Revenue Waterfall](docs/screenshots/powerbi_finance_revenue_waterfall.png)
+
 ## Streamlit AI Analyst Demo
 
 Run:
@@ -107,6 +123,7 @@ dbt build --profiles-dir .
 dbt docs generate --profiles-dir .
 cd ..
 python scripts/export_bi_extracts.py
+python scripts/generate_dashboard_screenshots.py
 python -m pytest
 ```
 
@@ -131,9 +148,9 @@ GitHub Actions installs dependencies, generates data, validates data, runs dbt d
 
 Checks include primary key uniqueness, relationship integrity, accepted statuses, passenger counts, cancellation dates, AOP coverage, return dates after departure, final payments before departure, positive AOP targets, nonnegative recognized revenue, nonnegative deferred revenue, nonnegative campaign ROAS, and occupancy rates/gaps bounded between 0 and 100%.
 
-## Screenshots Placeholders
+## Screenshots
 
-`docs/screenshots` is reserved for real screenshots after Tableau, Power BI, or Streamlit views are created locally. Fake screenshots are intentionally not committed.
+`docs/screenshots/tableau_executive_scorecard.png` and `docs/screenshots/powerbi_finance_revenue_waterfall.png` are generated from committed BI extracts. Fake Tableau Public or Power BI publish links are intentionally not committed.
 
 ## Resume Bullets
 

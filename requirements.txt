@@ -5,6 +5,7 @@ dbt-core>=1.8,<1.9
 dbt-duckdb>=1.8,<1.9
 streamlit>=1.36
 plotly>=5.22
+matplotlib>=3.8
 pytest>=8.2
 sqlfluff>=3.1
 sqlfluff-templater-dbt>=3.1
