@@ -14,6 +14,7 @@ MARTS = [
     "mart_executive_scorecard",
     "mart_revenue_management",
     "mart_finance_revenue",
+    "mart_finance_revenue_waterfall_monthly",
     "mart_marketing_performance",
     "fct_occupancy_daily",
     "fct_revenue_recognition",

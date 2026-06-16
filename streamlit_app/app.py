@@ -29,18 +29,28 @@ QUESTIONS = [
 
 st.set_page_config(page_title="Cruise AI Analyst", layout="wide")
 st.title("Luxury Cruise Governed AI Analyst Demo")
+
+finance_calendar = load_csv("mart_finance_revenue_waterfall_monthly")
+finance_calendar["accounting_month"] = pd.to_datetime(finance_calendar["accounting_month"])
+available_months = sorted(finance_calendar["accounting_month"].dropna().dt.to_period("M").astype(str).unique())
+default_month_index = max(0, len(available_months) - 2)
+selected_month_label = st.sidebar.selectbox("Reporting month", available_months, index=default_month_index)
+selected_reporting_month = pd.Period(selected_month_label, freq="M").to_timestamp()
+st.sidebar.caption(f"Selected reporting month: {selected_month_label}")
+
 question = st.selectbox("Choose a governed question", QUESTIONS)
 free_text = st.text_input("Optional natural-language note", placeholder="Example: focus on Mediterranean sailings")
 
 if question == QUESTIONS[0]:
     df = load_csv("mart_executive_scorecard")
     df["month_start"] = pd.to_datetime(df["month_start"])
-    month = df["month_start"].max()
-    answer = df[(df["month_start"] == month) & (df["revenue_aop_attainment"] < 1)].sort_values("revenue_aop_attainment").head(15)
+    answer = df[(df["month_start"] == selected_reporting_month) & (df["revenue_aop_attainment"] < 1)].sort_values("revenue_aop_attainment").head(15)
+    st.subheader(f"AOP underperformance for {selected_month_label}")
     st.caption("Metric definition: revenue AOP attainment = recognized revenue / revenue target.")
-    st.code("SELECT * FROM mart_executive_scorecard WHERE month_start = max_month AND revenue_aop_attainment < 1 ORDER BY revenue_aop_attainment")
+    st.code("SELECT * FROM mart_executive_scorecard WHERE month_start = selected_reporting_month AND revenue_aop_attainment < 1 ORDER BY revenue_aop_attainment")
     st.dataframe(answer)
-    st.plotly_chart(px.bar(answer, x="region", y="revenue_aop_attainment", color="ship_class"), use_container_width=True)
+    if not answer.empty:
+        st.plotly_chart(px.bar(answer, x="region", y="revenue_aop_attainment", color="ship_class"), use_container_width=True)
 elif question == QUESTIONS[1]:
     df = load_csv("mart_revenue_management").sort_values("occupancy_gap", ascending=False).head(10)
     st.caption("Metric definition: occupancy gap = 1 - sold passenger nights / available passenger nights.")
@@ -59,11 +69,11 @@ elif question == QUESTIONS[2]:
 elif question == QUESTIONS[3]:
     df = load_csv("mart_finance_revenue")
     df["recognition_month"] = pd.to_datetime(df["recognition_month"])
-    current = df["recognition_month"].min()
-    next_month = current + pd.offsets.MonthBegin(1)
+    next_month = selected_reporting_month + pd.offsets.MonthBegin(1)
     upcoming = df[df["recognition_month"] == next_month]
     total = upcoming["deferred_revenue"].sum()
-    st.metric("Deferred revenue scheduled for selected next month", f"${total:,.0f}")
+    st.metric(f"Deferred revenue scheduled for {next_month.strftime('%Y-%m')}", f"${total:,.0f}")
+    st.caption(f"Reporting month selected: {selected_month_label}. Next month is {next_month.strftime('%Y-%m')}.")
     st.caption("Metric definition: deferred revenue = cash collected minus recognized revenue where recognition is pending.")
     st.code("SELECT recognition_month, SUM(deferred_revenue) FROM mart_finance_revenue GROUP BY 1 ORDER BY 1")
     st.dataframe(upcoming.sort_values("deferred_revenue", ascending=False).head(20))

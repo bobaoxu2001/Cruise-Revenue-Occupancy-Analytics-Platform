@@ -1,12 +1,24 @@
 # AI Tooling Case Study
 
-This project documents practical AI-assisted analytics engineering, not magic automation.
+This project uses AI-assisted engineering in the same way an analytics team might use Claude Code, Cursor, or similar tools: to accelerate drafts, spot issues, and reduce repetitive work. It does not claim autonomous production deployment.
 
-Claude Code / Cursor-style tooling helped accelerate:
-- Initial dbt model skeletons for staging, intermediate, and mart layers.
-- Translation of business rules into dbt tests, including occupancy caps and revenue recognition checks.
-- SQL debugging by narrowing model failures to grain mismatches, date casts, and null campaign attribution.
-- Documentation drafts for data dictionary, metric definitions, dashboard rebuild instructions, and CI checklists.
-- Refactoring repeated SQL patterns into reusable intermediate models.
+## What AI Helped With
 
-Human review remained necessary for metric governance, finance logic, dashboard grain decisions, and validation. The project intentionally avoids claiming live Snowflake Cortex, Tableau, or Power BI automation without credentials and produced artifacts.
+- Generated the initial dbt project skeleton across staging, intermediate, mart, semantic, snapshot, exposure, and test folders.
+- Suggested business-rule tests from metric requirements, including occupancy caps, nonnegative recognized revenue, final-payment timing, AOP target coverage, and cancellation date completeness.
+- Helped identify grain mismatches between daily occupancy facts, sailing-level finance marts, and month-region-ship class executive scorecards.
+- Helped refactor repeated joins into intermediate models such as `int_reservation_lifecycle`, `int_payment_events`, and `int_sailing_capacity`.
+- Drafted first-pass documentation for metric definitions, data dictionary, dashboard rebuild instructions, and the PR checklist.
+- Helped debug semantic-layer validation issues in CI by adjusting metric references, time spine requirements, and entity naming.
+
+## What Required Human Review
+
+- Finance logic: revenue recognition belongs to completed sailings, while cash collection belongs to payment dates.
+- Occupancy denominator: passenger nights were chosen over cabins to match cruise capacity planning.
+- Metric governance: placeholder metrics were removed when they did not reflect actual source fields.
+- BI grain decisions: sailing-level, daily, campaign-level, and monthly scorecard facts were kept separate to avoid double counting.
+- Claims discipline: no fake Tableau, Power BI, or Snowflake deployment artifacts are presented.
+
+## Practical Outcome
+
+AI sped up scaffolding and iteration, but the final work still depends on analytics engineering judgment: clear grains, stable business definitions, repeatable tests, and honest documentation of what is implemented locally versus Snowflake-ready.

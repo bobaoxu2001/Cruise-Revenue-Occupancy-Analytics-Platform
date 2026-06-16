@@ -52,11 +52,15 @@ MODEL_ORDER = [
     "marts/mart_executive_scorecard",
     "marts/mart_revenue_management",
     "marts/mart_finance_revenue",
+    "marts/mart_finance_revenue_waterfall_monthly",
     "marts/mart_marketing_performance",
+    "semantic/metricflow_time_spine",
 ]
 
 
 def compile_refs(sql: str) -> str:
+    sql = re.sub(r"\{\{\s*config\([\s\S]*?\)\s*\}\}", "", sql)
+    sql = re.sub(r"\{% if is_incremental\(\) %\}[\s\S]*?\{% endif %\}", "", sql)
     return re.sub(r"\{\{\s*ref\('([^']+)'\)\s*\}\}", r"\1", sql)
 
 

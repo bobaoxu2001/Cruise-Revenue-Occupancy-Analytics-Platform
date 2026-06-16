@@ -5,35 +5,173 @@ models:
     description: Guest dimension for loyalty, geography, acquisition, and demographic slicing.
     columns:
       - name: guest_id
+        description: Stable guest identifier.
         tests: [not_null, unique]
+
   - name: dim_ship
     description: Ship dimension for fleet reporting.
     columns:
       - name: ship_id
+        description: Stable ship identifier.
         tests: [not_null, unique]
+
   - name: dim_itinerary
     description: Itinerary dimension for region and product performance analysis.
     columns:
       - name: itinerary_id
+        description: Stable itinerary identifier.
         tests: [not_null, unique]
+
   - name: dim_sailing
     description: Sailing dimension with capacity denominators.
     columns:
       - name: sailing_id
+        description: Stable sailing identifier.
         tests: [not_null, unique]
+
   - name: fct_booking_daily
-    description: Daily booking fact for booking pace, cancellation, and channel performance.
+    description: Incremental daily booking fact for booking pace, cancellation, gross demand, net demand, and channel performance.
+    columns:
+      - name: booking_date
+        description: Date the reservation was booked.
+        tests: [not_null]
+      - name: departure_date
+        description: Sailing departure date used to align booking pace to voyage timing.
+        tests: [not_null]
+      - name: region
+        description: Itinerary region.
+        tests: [not_null]
+      - name: ship_class
+        description: Ship class.
+        tests: [not_null]
+      - name: booking_channel
+        description: Sales channel used for the booking.
+        tests: [not_null]
+      - name: lead_time_bucket
+        description: Days-before-departure bucket.
+        tests: [not_null]
+      - name: gross_booking_revenue
+        description: Gross reservation value before discounts.
+        tests: [not_null]
+      - name: net_booking_revenue
+        description: Reservation value after discounts.
+        tests: [not_null]
+
   - name: fct_revenue_recognition
     description: Revenue recognition fact at sailing and recognition date grain.
+    columns:
+      - name: recognition_date
+        description: Date revenue is recognized, tied to sailing completion.
+        tests: [not_null]
+      - name: sailing_id
+        description: Sailing associated with recognized revenue.
+        tests: [not_null]
+      - name: recognized_revenue
+        description: Revenue recognized for completed sailings.
+        tests: [not_null]
+
   - name: fct_occupancy_daily
     description: Daily occupancy fact using sold passenger nights over available passenger nights.
+    columns:
+      - name: date_day
+        description: Occupancy calendar date.
+        tests: [not_null]
+      - name: sailing_id
+        description: Sailing active on the occupancy date.
+        tests: [not_null]
+      - name: occupancy_rate
+        description: Sold passengers divided by passenger capacity for the sailing day.
+        tests: [not_null]
+
   - name: fct_campaign_performance
     description: Campaign-level attributed revenue, cancellation, and ROAS.
+    columns:
+      - name: campaign_id
+        description: Campaign identifier, or ORGANIC_OR_UNATTRIBUTED for bookings without campaign attribution.
+        tests: [not_null, unique]
+      - name: campaign_roas
+        description: Attributed net booking revenue divided by campaign spend; null when campaign spend is zero.
+
   - name: mart_executive_scorecard
     description: Governed scorecard mart comparing actuals to AOP targets by month, region, and ship class.
+    columns:
+      - name: month_start
+        description: First day of the scorecard month.
+        tests: [not_null]
+      - name: region
+        description: Itinerary region.
+        tests: [not_null]
+      - name: ship_class
+        description: Ship class.
+        tests: [not_null]
+      - name: revenue_target
+        description: Monthly AOP revenue target.
+        tests: [not_null]
+      - name: occupancy_target
+        description: Monthly AOP occupancy target.
+        tests: [not_null]
+      - name: booking_target
+        description: Monthly AOP booking target.
+        tests: [not_null]
+      - name: revenue_aop_attainment
+        description: Recognized revenue divided by revenue target.
+      - name: occupancy_aop_attainment
+        description: Actual occupancy divided by occupancy target.
+      - name: booking_aop_attainment
+        description: Actual bookings divided by booking target.
+
   - name: mart_revenue_management
     description: Sailing performance mart for occupancy gaps, booked revenue, and underperforming voyages.
+    columns:
+      - name: sailing_id
+        description: One row per sailing.
+        tests: [not_null, unique]
+      - name: occupancy_gap
+        description: One minus occupancy rate at sailing grain.
+        tests: [not_null]
+
   - name: mart_finance_revenue
-    description: Finance mart for cash, recognized revenue, deferred revenue, refunds, and penalties.
+    description: Sailing-level finance mart for cash, recognized revenue, deferred revenue, refunds, and penalties.
+    columns:
+      - name: sailing_id
+        description: One row per sailing.
+        tests: [not_null, unique]
+      - name: deferred_revenue
+        description: Cash collected for future or unrecognized sailing revenue.
+        tests: [not_null]
+      - name: refund_exposure
+        description: Absolute value of refund cash outflow.
+        tests: [not_null]
+
+  - name: mart_finance_revenue_waterfall_monthly
+    description: Monthly finance waterfall by accounting month, region, and ship class, showing deferred revenue roll-forward.
+    columns:
+      - name: accounting_month
+        description: Month of the cash or recognition activity.
+        tests: [not_null]
+      - name: region
+        description: Itinerary region.
+        tests: [not_null]
+      - name: ship_class
+        description: Ship class.
+        tests: [not_null]
+      - name: beginning_deferred_revenue
+        description: Deferred revenue balance before monthly activity.
+        tests: [not_null]
+      - name: ending_deferred_revenue
+        description: Deferred revenue balance after monthly cash, refunds, penalties, and recognized revenue.
+        tests: [not_null]
+      - name: revenue_recognition_rate
+        description: Recognized revenue divided by beginning deferred plus net cash activity.
+
   - name: mart_marketing_performance
     description: Marketing mart for campaign contribution, ROAS, and cancellation exposure.
+    columns:
+      - name: campaign_id
+        description: Campaign identifier, or ORGANIC_OR_UNATTRIBUTED.
+        tests: [not_null, unique]
+      - name: campaign_spend
+        description: Spend attached to the campaign.
+        tests: [not_null]
+      - name: campaign_roas
+        description: Attributed net booking revenue divided by campaign spend; null when spend is zero.

@@ -1,6 +1,8 @@
 # Luxury Cruise Analytics Engineering Platform
 
-This project simulates the analytics engineering layer of a luxury cruise company. It transforms raw reservations, payments, itineraries, cabins, marketing campaigns, and AOP targets into governed dbt marts and semantic KPI definitions powering Tableau and Power BI executive scorecards. The platform includes incremental models, snapshots, dbt tests, documentation, GitHub Actions CI, and a Streamlit AI analyst prototype for governed business Q&A.
+This project simulates the analytics engineering layer of a luxury cruise company. It is locally runnable with DuckDB and dbt-duckdb, and it transforms raw reservations, payments, itineraries, cabins, marketing campaigns, and AOP targets into governed dbt marts and semantic KPI definitions powering Tableau and Power BI executive scorecards.
+
+The platform includes a deterministic synthetic data generator, a real dbt incremental booking fact, revenue recognition and deferred revenue marts, a monthly finance revenue waterfall, dbt tests and documentation, GitHub Actions CI, exported BI-ready CSVs, Snowflake-ready SQL patterns, and a Streamlit governed analyst prototype. Snowflake deployment patterns are included, but no real Snowflake deployment is claimed without credentials.
 
 ## Why This Project Exists
 
@@ -9,11 +11,23 @@ Luxury cruise operators need trusted answers about recognized revenue, deferred 
 ## Role / JD Alignment
 
 - Snowflake-style SQL: recursive CTEs, window functions, MERGE logic, row-level security, and revenue waterfalls.
-- Production dbt: staging, intermediate models, marts, tests, snapshots, documentation, exposures, and CI.
+- Production dbt: staging, intermediate models, incremental marts, tests, snapshots, documentation, exposures, and CI.
 - Governed data marts: executive, revenue management, finance, and marketing performance.
 - Semantic KPIs: revenue, occupancy, booking pace, cancellations, AOP attainment, and ROAS.
 - BI readiness: Tableau and Power BI extracts plus rebuild blueprints.
 - AI-assisted analytics: documented controlled Streamlit analyst prototype and AI tooling case study.
+
+## Implemented vs Snowflake-Ready
+
+| Area | Implemented Locally | Snowflake-Ready / Not Claimed as Deployed |
+| --- | --- | --- |
+| Data generation | Deterministic Python generator creates reservations, payments, sailings, campaigns, AOP targets, and onboard spend. | Raw CSVs can be loaded to a Snowflake stage. |
+| Warehouse | DuckDB database at `dbt_cruise_analytics/cruise_analytics.duckdb`. | Snowflake DDL and deployment guide are included, but no credentials are used. |
+| dbt | Staging, intermediate, mart, semantic, snapshot, exposure, docs, and tests run in CI. | dbt-snowflake profile can be added for real deployment. |
+| Incremental logic | `fct_booking_daily` is a real dbt incremental model using a stable booking grain. | Snowflake MERGE example shows warehouse-native implementation. |
+| Finance | Sailing-level finance mart and monthly deferred revenue waterfall are implemented. | Finance logic can be extended to match a company's chart of accounts. |
+| BI | Tableau and Power BI extracts and rebuild blueprints are committed. | Real workbook/screenshots are manual next steps. |
+| AI analyst | Streamlit governed question menu reads exported marts. | No unrestricted AI SQL generation or Snowflake Cortex claim. |
 
 ## Architecture
 
@@ -37,7 +51,7 @@ Raw entities include guests, ships, cabins, itineraries, sailings, reservations,
 
 - `models/staging`: typed, cleaned source models.
 - `models/intermediate`: reservation lifecycle, payment events, revenue events, capacity, booking lead-time, campaign attribution, and date spine.
-- `models/marts`: dimensions, daily facts, executive scorecard, revenue management, finance revenue, and marketing performance.
+- `models/marts`: dimensions, incremental daily booking fact, occupancy and recognition facts, executive scorecard, revenue management, finance revenue, monthly finance waterfall, and marketing performance.
 - `snapshots`: reservation status tracking.
 - `tests`: business-rule and relationship checks.
 - `models/semantic`: semantic-layer-style KPI definitions.
@@ -47,6 +61,7 @@ Raw entities include guests, ships, cabins, itineraries, sailings, reservations,
 - `mart_executive_scorecard`: monthly region and ship-class KPIs vs AOP.
 - `mart_revenue_management`: sailing-level occupancy gap and booked revenue.
 - `mart_finance_revenue`: cash, recognized revenue, deferred revenue, refunds, and cancellation penalties.
+- `mart_finance_revenue_waterfall_monthly`: monthly deferred revenue roll-forward by accounting month, region, and ship class.
 - `mart_marketing_performance`: campaign contribution, ROAS, and cancellation exposure.
 
 ## Metric Definitions
@@ -75,7 +90,7 @@ Run:
 streamlit run streamlit_app/app.py
 ```
 
-The app supports governed questions about AOP underperformance, occupancy gaps, cancellation rates, deferred revenue, and campaign ROAS. It displays the metric definition, query logic, table, and chart.
+The app supports governed questions about AOP underperformance, occupancy gaps, cancellation rates, deferred revenue, and campaign ROAS. It includes a reporting month selector and displays the metric definition, query logic, table, and chart.
 
 ## How To Run Locally
 
@@ -114,7 +129,7 @@ GitHub Actions installs dependencies, generates data, validates data, runs dbt d
 
 ## Data Quality Checks
 
-Checks include primary key uniqueness, relationship integrity, accepted statuses, passenger counts, cancellation dates, AOP coverage, return dates after departure, final payments before departure, nonnegative recognized revenue, and occupancy rates capped at 100%.
+Checks include primary key uniqueness, relationship integrity, accepted statuses, passenger counts, cancellation dates, AOP coverage, return dates after departure, final payments before departure, positive AOP targets, nonnegative recognized revenue, nonnegative deferred revenue, nonnegative campaign ROAS, and occupancy rates/gaps bounded between 0 and 100%.
 
 ## Screenshots Placeholders
 
@@ -123,8 +138,8 @@ Checks include primary key uniqueness, relationship integrity, accepted statuses
 ## Resume Bullets
 
 - Built a production-style dbt analytics platform for luxury cruise revenue, occupancy, booking pace, and AOP reporting using DuckDB locally and Snowflake-ready SQL patterns.
-- Modeled governed finance and revenue-management marts with passenger-night occupancy denominators, sailing-based revenue recognition, deferred revenue, and cancellation exposure.
-- Implemented dbt tests, snapshots, semantic KPI documentation, BI extracts, GitHub Actions CI, and a controlled Streamlit analyst demo for executive questions.
+- Modeled governed finance and revenue-management marts with passenger-night occupancy denominators, sailing-based revenue recognition, deferred revenue, monthly roll-forward waterfalls, and cancellation exposure.
+- Implemented an incremental dbt booking fact, mart-level tests, snapshots, semantic KPI documentation, BI extracts, GitHub Actions CI, and a controlled Streamlit analyst demo for executive questions.
 
 ## Future Improvements
 

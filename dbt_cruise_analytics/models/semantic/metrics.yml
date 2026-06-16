@@ -71,6 +71,44 @@ semantic_models:
         agg: sum
         expr: available_passenger_nights
 
+  - name: booking_daily_semantic_model
+    description: Daily booking semantic model for gross and net demand, pace, and channel cancellation metrics.
+    defaults:
+      agg_time_dimension: booking_date
+    model: ref('fct_booking_daily')
+    entities:
+      - name: booking_daily_slice
+        type: primary
+        expr: cast(booking_date as varchar) || '-' || cast(departure_date as varchar) || '-' || region || '-' || ship_class || '-' || booking_channel || '-' || lead_time_bucket
+    dimensions:
+      - name: booking_date
+        type: time
+        expr: booking_date
+        type_params:
+          time_granularity: day
+      - name: departure_date
+        type: time
+        expr: departure_date
+        type_params:
+          time_granularity: day
+      - name: region
+        type: categorical
+      - name: ship_class
+        type: categorical
+      - name: booking_channel
+        type: categorical
+      - name: lead_time_bucket
+        type: categorical
+    measures:
+      - name: booking_gross_booking_revenue
+        description: Gross booking revenue before discounts from the daily booking fact.
+        agg: sum
+        expr: gross_booking_revenue
+      - name: booking_net_booking_revenue
+        description: Net booking revenue after discounts from the daily booking fact.
+        agg: sum
+        expr: net_booking_revenue
+
   - name: finance_revenue_semantic_model
     description: Sailing finance semantic model for cash, recognized revenue, deferred revenue, refunds, and penalties.
     defaults:
@@ -149,9 +187,9 @@ metrics:
   - name: gross_booking_revenue
     type: simple
     label: Gross Booking Revenue
-    description: Gross booked demand is governed in fct_booking_daily; this semantic placeholder uses net booking revenue where executive marts are discounted.
+    description: Gross booked demand before discounts, sourced from fct_booking_daily.
     type_params:
-      measure: executive_net_booking_revenue
+      measure: booking_gross_booking_revenue
 
   - name: recognized_revenue
     type: simple
