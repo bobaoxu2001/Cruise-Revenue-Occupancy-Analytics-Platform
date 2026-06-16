@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: int_date_spine
+    description: Contiguous date spine used for calendar-aware occupancy and booking pace analysis.
+  - name: int_sailing_capacity
+    description: Sailing grain capacity model with passenger-night denominators.
+  - name: int_reservation_lifecycle
+    description: Reservation lifecycle model that joins booking, sailing, itinerary, and capacity attributes.
+  - name: int_payment_events
+    description: Payment event model enriched with sailing and recognition context.
+  - name: int_revenue_events
+    description: Revenue recognition event model where revenue is recognized when completed sailings return.
+  - name: int_booking_lead_time
+    description: Lead-time bucket model for booking pace and demand curve analysis.
+  - name: int_campaign_attribution
+    description: Reservation-to-campaign attribution model with spend context for ROAS.

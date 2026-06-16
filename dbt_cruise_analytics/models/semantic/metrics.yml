@@ -1,0 +1,113 @@
+semantic_models:
+  - name: cruise_revenue_semantic_model
+    description: Semantic layer style definition for governed cruise revenue, occupancy, pace, and AOP metrics.
+    defaults:
+      agg_time_dimension: metric_date
+    model: ref('mart_executive_scorecard')
+    entities:
+      - name: region
+        type: natural
+        expr: region
+      - name: ship_class
+        type: natural
+        expr: ship_class
+    dimensions:
+      - name: metric_date
+        type: time
+        type_params:
+          time_granularity: month
+        expr: month_start
+      - name: region
+        type: categorical
+      - name: ship_class
+        type: categorical
+    measures:
+      - name: gross_booking_revenue
+        description: Gross booked demand before discounts. Exposed from booking facts in BI extracts.
+        agg: sum
+        expr: net_booking_revenue + 0
+      - name: net_booking_revenue
+        description: Booked revenue after discounts, before cancellations and recognition timing.
+        agg: sum
+        expr: net_booking_revenue
+      - name: recognized_revenue
+        description: Revenue recognized when sailings complete, not when cash is collected.
+        agg: sum
+        expr: recognized_revenue
+      - name: bookings
+        agg: sum
+        expr: bookings
+      - name: cancellations
+        agg: sum
+        expr: cancellations
+      - name: revenue_target
+        agg: sum
+        expr: revenue_target
+      - name: booking_target
+        agg: sum
+        expr: booking_target
+
+metrics:
+  - name: recognized_revenue
+    type: simple
+    label: Recognized Revenue
+    type_params:
+      measure: recognized_revenue
+  - name: net_booking_revenue
+    type: simple
+    label: Net Booking Revenue
+    type_params:
+      measure: net_booking_revenue
+  - name: deferred_revenue
+    type: derived
+    label: Deferred Revenue
+    description: Cash collected for future sailings that has not yet been recognized. Implemented in mart_finance_revenue.
+    type_params:
+      expr: cash_collected - recognized_revenue
+      metrics:
+        - name: recognized_revenue
+  - name: occupancy_rate
+    type: ratio
+    label: Occupancy Rate
+    description: Sold passenger nights divided by available passenger nights.
+    type_params:
+      numerator: sold_passenger_nights
+      denominator: available_passenger_nights
+  - name: booking_pace
+    type: simple
+    label: Booking Pace
+    description: Bookings grouped by lead-time bucket before departure.
+    type_params:
+      measure: bookings
+  - name: cancellation_rate
+    type: ratio
+    label: Cancellation Rate
+    type_params:
+      numerator: cancellations
+      denominator: bookings
+  - name: aop_attainment
+    type: ratio
+    label: Revenue AOP Attainment
+    type_params:
+      numerator: recognized_revenue
+      denominator: revenue_target
+  - name: revenue_per_passenger_night
+    type: derived
+    label: Revenue per Passenger Night
+    type_params:
+      expr: recognized_revenue / sold_passenger_nights
+      metrics:
+        - name: recognized_revenue
+  - name: campaign_roas
+    type: simple
+    label: Campaign ROAS
+    description: Attributed net revenue divided by campaign spend in mart_marketing_performance.
+    type_params:
+      measure: net_booking_revenue
+  - name: booking_conversion_proxy
+    type: ratio
+    label: Booking Conversion Proxy
+    description: Attributed bookings divided by campaign spend units; a proxy because impression/session data is not modeled.
+    type_params:
+      numerator: bookings
+      denominator: booking_target

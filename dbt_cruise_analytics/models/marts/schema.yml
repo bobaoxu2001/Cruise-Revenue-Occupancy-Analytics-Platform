@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: dim_guest
+    description: Guest dimension for loyalty, geography, acquisition, and demographic slicing.
+    columns:
+      - name: guest_id
+        tests: [not_null, unique]
+  - name: dim_ship
+    description: Ship dimension for fleet reporting.
+    columns:
+      - name: ship_id
+        tests: [not_null, unique]
+  - name: dim_itinerary
+    description: Itinerary dimension for region and product performance analysis.
+    columns:
+      - name: itinerary_id
+        tests: [not_null, unique]
+  - name: dim_sailing
+    description: Sailing dimension with capacity denominators.
+    columns:
+      - name: sailing_id
+        tests: [not_null, unique]
+  - name: fct_booking_daily
+    description: Daily booking fact for booking pace, cancellation, and channel performance.
+  - name: fct_revenue_recognition
+    description: Revenue recognition fact at sailing and recognition date grain.
+  - name: fct_occupancy_daily
+    description: Daily occupancy fact using sold passenger nights over available passenger nights.
+  - name: fct_campaign_performance
+    description: Campaign-level attributed revenue, cancellation, and ROAS.
+  - name: mart_executive_scorecard
+    description: Governed scorecard mart comparing actuals to AOP targets by month, region, and ship class.
+  - name: mart_revenue_management
+    description: Sailing performance mart for occupancy gaps, booked revenue, and underperforming voyages.
+  - name: mart_finance_revenue
+    description: Finance mart for cash, recognized revenue, deferred revenue, refunds, and penalties.
+  - name: mart_marketing_performance
+    description: Marketing mart for campaign contribution, ROAS, and cancellation exposure.

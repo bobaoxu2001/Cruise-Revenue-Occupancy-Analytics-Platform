@@ -1,0 +1,7 @@
+cruise_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: cruise_analytics.duckdb
+      threads: 4

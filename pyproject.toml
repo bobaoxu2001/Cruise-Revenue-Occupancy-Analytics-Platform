@@ -1,0 +1,18 @@
+[project]
+name = "luxury-cruise-analytics-platform"
+version = "0.1.0"
+description = "Analytics engineering portfolio project for governed luxury cruise revenue and occupancy analytics."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.sqlfluff.core]
+dialect = "duckdb"
+templater = "dbt"
+exclude_rules = ["LT05"]
+
+[tool.sqlfluff.templater.dbt]
+project_dir = "dbt_cruise_analytics"
+profiles_dir = "dbt_cruise_analytics"

@@ -1,0 +1,29 @@
+version: 2
+
+exposures:
+  - name: tableau_executive_scorecard
+    label: Tableau Executive Scorecard
+    type: dashboard
+    maturity: medium
+    url: https://public.tableau.com/
+    description: Executive performance dashboard powered by mart_executive_scorecard and revenue management marts.
+    depends_on:
+      - ref('mart_executive_scorecard')
+      - ref('mart_revenue_management')
+      - ref('mart_marketing_performance')
+    owner:
+      name: Analytics Engineering Portfolio
+      email: analytics@example.com
+
+  - name: powerbi_finance_scorecard
+    label: Power BI Finance Revenue Recognition Scorecard
+    type: dashboard
+    maturity: medium
+    description: Finance dashboard for deferred revenue, recognition waterfall, refund exposure, and AOP attainment.
+    depends_on:
+      - ref('mart_finance_revenue')
+      - ref('fct_revenue_recognition')
+      - ref('mart_executive_scorecard')
+    owner:
+      name: Analytics Engineering Portfolio
+      email: analytics@example.com

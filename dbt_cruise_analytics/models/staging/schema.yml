@@ -1,0 +1,98 @@
+version: 2
+
+models:
+  - name: stg_guests
+    description: Cleaned guest master data with loyalty and acquisition attributes.
+    columns:
+      - name: guest_id
+        tests: [not_null, unique]
+      - name: loyalty_tier
+        tests:
+          - accepted_values:
+              values: ['Classic', 'Silver', 'Gold', 'Platinum', 'Diamond']
+  - name: stg_ships
+    description: Ship fleet reference data.
+    columns:
+      - name: ship_id
+        tests: [not_null, unique]
+      - name: ship_class
+        tests:
+          - accepted_values:
+              values: ['Expedition', 'Ocean', 'River', 'Yacht']
+  - name: stg_cabins
+    description: Cabin inventory with capacity and price multipliers.
+    columns:
+      - name: cabin_id
+        tests: [not_null, unique]
+      - name: ship_id
+        tests:
+          - relationships:
+              to: ref('stg_ships')
+              field: ship_id
+  - name: stg_itineraries
+    description: Itinerary reference data by region, ports, and duration.
+    columns:
+      - name: itinerary_id
+        tests: [not_null, unique]
+  - name: stg_sailings
+    description: Scheduled and completed sailing instances.
+    columns:
+      - name: sailing_id
+        tests: [not_null, unique]
+      - name: sailing_status
+        tests:
+          - accepted_values:
+              values: ['completed', 'scheduled']
+  - name: stg_reservations
+    description: Reservation transaction grain, one row per cabin booking.
+    columns:
+      - name: reservation_id
+        tests: [not_null, unique]
+      - name: guest_id
+        tests:
+          - relationships:
+              to: ref('stg_guests')
+              field: guest_id
+      - name: sailing_id
+        tests:
+          - relationships:
+              to: ref('stg_sailings')
+              field: sailing_id
+      - name: cabin_id
+        tests:
+          - relationships:
+              to: ref('stg_cabins')
+              field: cabin_id
+      - name: booking_status
+        tests:
+          - accepted_values:
+              values: ['confirmed', 'cancelled', 'completed']
+  - name: stg_payments
+    description: Cash events for deposits, final payments, refunds, and cancellation penalties.
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: reservation_id
+        tests:
+          - relationships:
+              to: ref('stg_reservations')
+              field: reservation_id
+      - name: payment_type
+        tests:
+          - accepted_values:
+              values: ['deposit', 'final_payment', 'refund', 'cancellation_penalty']
+  - name: stg_marketing_campaigns
+    description: Campaign spend and targeting attributes.
+    columns:
+      - name: campaign_id
+        tests: [not_null, unique]
+  - name: stg_aop_targets
+    description: Annual operating plan targets by month, region, and ship class.
+    columns:
+      - name: target_month
+        tests: [not_null]
+  - name: stg_onboard_spend
+    description: Optional onboard service revenue at reservation and service category grain.
+    columns:
+      - name: onboard_spend_id
+        tests: [not_null, unique]

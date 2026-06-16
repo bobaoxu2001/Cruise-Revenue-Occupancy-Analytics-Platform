@@ -1,0 +1,6 @@
+-- Snowflake performance notes:
+-- 1. Cluster large facts by month_start, region, and ship_class when pruning is poor.
+-- 2. Keep reservation lifecycle as an incremental model keyed by reservation_id.
+-- 3. Use transient tables for rebuildable intermediate layers.
+-- 4. Monitor query profile for broadcast joins on small dimensions.
+-- 5. Consider dynamic tables for near-real-time booking pace marts.
